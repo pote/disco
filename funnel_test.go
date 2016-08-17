@@ -27,7 +27,7 @@ func TestFunnelIncomingChannel(t *testing.T) {
     if string(job.Payload) != "this-is-the-payload" {
       t.Errorf("Expected payload does not match: '%v'", string(job.Payload))
     }
-  case <- time.NewTicker(time.Second).C:
+  case <- time.Tick(time.Second):
     t.Error("Failed to fetch job in a timely manner")
   }
 }
@@ -53,7 +53,7 @@ func TestFunnelOutgoingChannel(t *testing.T) {
     if string(job.Payload) != "this-is-the-payload" {
       t.Errorf("Expected payload does not match: '%v'", string(job.Payload))
     }
-  case <- time.NewTicker(time.Second).C:
+  case <- time.Tick(time.Second):
     t.Error("Failed to fetch job in a timely manner")
   }
 }
