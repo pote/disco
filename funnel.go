@@ -50,6 +50,7 @@ func (f *Funnel) Listen() {
       if f.Closed {
         connection.NAck(job.ID)
         connection.Close()
+        close(f.Incoming)
         return
       }
 
@@ -65,15 +66,18 @@ func (f *Funnel) Listen() {
 func (f *Funnel) Dispatch() {
   for {
     select {
-    case job, ok := <- f.Outgoing:
-      if !ok {
-        return
-      }
+    case job := <- f.Outgoing:
       connection := f.Connections.Get()
       connection.AddJob(job.Queue, string(job.Payload), "10s") // TODO: Push timeout should be configurable.
       connection.Close()
+
+      if f.Closed {
+        close(f.Outgoing)
+        return
+      }
     case <- time.Tick(time.Second):
       if f.Closed {
+        close(f.Outgoing)
         return
       }
     }
