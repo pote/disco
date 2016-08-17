@@ -39,3 +39,22 @@ func TestAddJob(t *testing.T) {
     t.Error("No job id returned from ADDJOB")
   }
 }
+
+func TestConnectionFetch(t *testing.T) {
+  connection, err := NewConnection(1)
+  connection.AddJob("disco-test-queue", "this-is-the-payload", "10s")
+
+  job, err := connection.Fetch(1, "10s", "disco-test-queue")
+
+  if err != nil {
+    t.Fatal(err)
+  }
+
+  if job.ID == "" {
+    t.Error("fetched jobs should always have ids")
+  }
+
+  if string(job.Payload) != "this-is-the-payload" {
+    t.Errorf("Expected payload does not match: '%v'", string(job.Payload))
+  }
+}

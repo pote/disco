@@ -59,3 +59,36 @@ func (c *Connection) AddJob(queue string, payload string, pushTimeout string) (s
 
   return redis.String(c.Do("ADDJOB", arguments...))
 }
+
+func (c *Connection) Fetch(count int, fetchTimeout string, queues ...string) (Job, error){
+  timeout, err := time.ParseDuration(fetchTimeout); if err != nil {
+    return Job{}, err
+  }
+
+  arguments := redis.Args{}.
+    Add("TIMEOUT").Add(int64(timeout.Seconds() * 1000)).
+    Add("COUNT").Add(count).
+    Add("FROM").AddFlat(queues)
+
+  values, err := redis.Values(c.Do("GETJOB", arguments...)); if err != nil {
+    return Job{}, err
+  }
+
+  for _, value := range values {
+    jobData, err := redis.Values(value, nil); if err != nil {
+      return Job{}, err
+    }
+
+    if len(jobData) < 3 {
+      return Job{}, errors.New("Malformed job fetched from Disque")
+    }
+
+    return Job{
+      Queue:    string(jobData[0].([]byte)),
+      ID:       string(jobData[1].([]byte)),
+      Payload:  jobData[2].([]byte),
+    }, nil
+  }
+
+  return Job{}, errors.New("timeout reached")
+}

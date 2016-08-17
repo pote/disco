@@ -4,16 +4,19 @@ import(
   "testing"
 )
 
-func TestConsumerFetch(t *testing.T) {
+
+func TestFunnelIncomingChannel(t *testing.T) {
   pool, _ := NewPool(2, 5, "240s", 1)
   connection := pool.Get()
   connection.AddJob("disco-test-queue", "this-is-the-payload", "10s")
 
-  consumer := pool.NewConsumer("disco-test-queue")
-  job, err := consumer.Fetch(1, "10s")
+  funnel := pool.NewFunnel("disco-test-queue")
+  go funnel.Listen(1, "10s")
 
-  if err != nil {
-    t.Fatal(err)
+  job, ok := <- funnel.Incoming
+
+  if !ok {
+    t.Fatal("I... I guess something is not ok")
   }
 
   if job.ID == "" {
@@ -25,15 +28,15 @@ func TestConsumerFetch(t *testing.T) {
   }
 }
 
-func TestConsumerIncomingChannel(t *testing.T) {
+func TestFunnelOutgoingChannel(t *testing.T) {
   pool, _ := NewPool(2, 5, "240s", 1)
-  connection := pool.Get()
-  connection.AddJob("disco-test-queue", "this-is-the-payload", "10s")
 
-  consumer := pool.NewConsumer("disco-test-queue")
-  go consumer.FetchIntoChannel(1, "10s")
+  funnel := pool.NewFunnel("disco-test-queue")
+  funnel.Outgoing <- Job{Queue: "disco-test-queue", Payload: []byte("this-is-the-payload")}
 
-  job, ok := <- consumer.IncomingJobs
+  go funnel.Listen(1, "10s")
+
+  job, ok := <- funnel.Incoming
 
   if !ok {
     t.Fatal("I... I guess something is not ok")

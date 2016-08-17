@@ -59,8 +59,6 @@ func (p *Pool) Get() Connection {
   return Connection{c, p.Cycle, p.Nodes, c}
 }
 
-func (p *Pool) NewConsumer(queues ...string) Consumer {
-  jobChannel := make(chan Job)
-
-  return Consumer{Queues: queues, IncomingJobs: jobChannel, Connections: p}
+func (p *Pool) NewFunnel(queues ...string) Funnel {
+  return NewFunnel(p, queues...)
 }
