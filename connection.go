@@ -15,10 +15,6 @@ type Connection struct {
 
   Cycle int
   Nodes []string
-
-  // This is ugly and duplicated, but we need an explicit reference to
-  // the connection so that we can leverage Redigo's Pool features.
-  disqueConnection redis.Conn
 }
 
 func NewConnection(cycle int) (Connection, error){
@@ -34,7 +30,7 @@ func NewConnectionToNodes(cycle int, nodes ...string) (Connection, error){
     return Connection{Cycle: cycle, Nodes: nodes}, err
   }
 
-  return Connection{disqueConn, cycle, nodes, disqueConn}, nil
+  return Connection{disqueConn, cycle, nodes}, nil
 }
 
 func connectToFirstAvailableNode(nodes ...string) (redis.Conn, error) {

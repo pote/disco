@@ -10,6 +10,7 @@ func TestFunnelIncomingChannel(t *testing.T) {
   pool, _ := NewPool(2, 5, "240s", 1)
   connection := pool.Get()
   connection.AddJob("disco-test-queue", "this-is-the-payload", "10s")
+  connection.Close()
 
   funnel := pool.NewFunnel("disco-test-queue")
   go funnel.Listen(1, "10s")

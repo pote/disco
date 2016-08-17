@@ -56,7 +56,7 @@ func NewPoolToNodes(maxIdle, maxActive int, idleTimeout string, cycle int, nodes
 func (p *Pool) Get() Connection {
   c := p.disqueConnections.Get()
 
-  return Connection{c, p.Cycle, p.Nodes, c}
+  return Connection{c, p.Cycle, p.Nodes}
 }
 
 func (p *Pool) NewFunnel(queues ...string) Funnel {
