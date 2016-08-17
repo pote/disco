@@ -14,23 +14,19 @@ type Pool struct {
   Nodes []string
 }
 
-func NewPool(maxIdle, maxActive int, idleTimeout string, cycle int) (Pool, error) {
-  return NewPoolToURLS(maxIdle, maxActive, idleTimeout, cycle, os.Getenv("DISQUE_NODES"))
+func NewPool(maxIdle, maxActive, cycle int, idleTimeout time.Duration) (Pool, error) {
+  return NewPoolToURLS(maxIdle, maxActive, cycle, idleTimeout, os.Getenv("DISQUE_NODES"))
 }
 
-func NewPoolToURLS(maxIdle, maxActive int, idleTimeout string, cycle int, urls string) (Pool, error) {
-  return NewPoolToNodes(maxIdle, maxActive, idleTimeout, cycle, strings.Split(urls, ",")...)
+func NewPoolToURLS(maxIdle, maxActive, cycle int, idleTimeout time.Duration, urls string) (Pool, error) {
+  return NewPoolToNodes(maxIdle, maxActive, cycle, idleTimeout, strings.Split(urls, ",")...)
 }
 
-func NewPoolToNodes(maxIdle, maxActive int, idleTimeout string, cycle int, nodes ...string) (Pool, error) {
-  timeout, err := time.ParseDuration(idleTimeout); if err != nil {
-    return Pool{}, err
-  }
-
+func NewPoolToNodes(maxIdle, maxActive, cycle int, idleTimeout time.Duration, nodes ...string) (Pool, error) {
   disquePool := redis.Pool{
     MaxIdle: maxIdle,
     MaxActive: maxActive,
-    IdleTimeout: timeout,
+    IdleTimeout: idleTimeout,
     Dial: func () (redis.Conn, error) {
       return connectToFirstAvailableNode(nodes...)
     },
@@ -42,7 +38,8 @@ func NewPoolToNodes(maxIdle, maxActive int, idleTimeout string, cycle int, nodes
 
   c := disquePool.Get()
   defer c.Close()
-  _, err = c.Do("PING")
+
+  _, err := c.Do("PING")
 
   p := Pool{
     Connections: disquePool,
@@ -60,5 +57,9 @@ func (p *Pool) Get() Connection {
 }
 
 func (p *Pool) NewFunnel(queues ...string) Funnel {
-  return NewFunnel(p, queues...)
+  return NewFunnel(p, 1, time.Second * 100, queues...)
+}
+
+func (p *Pool) NewFunnelWithOptions(fetchCount int, fetchTimeout time.Duration, queues ...string) Funnel {
+  return NewFunnel(p, fetchCount, fetchTimeout, queues...)
 }

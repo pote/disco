@@ -2,6 +2,7 @@ package disco
 
 import(
   "testing"
+  "time"
 
   "github.com/garyburd/redigo/redis"
 )
@@ -9,7 +10,7 @@ import(
 // This test will attempt a connection pool to a Disque server specified in
 // the DISQUE_NODES environmnet variable.
 func TestNewPooltoAvailableNode(t *testing.T) {
-  pool, err := NewPool(2, 2, "240s", 1)
+  pool, err := NewPool(2, 5, 1, time.Second * 200)
 
   if err != nil {
     t.Fatal(err)

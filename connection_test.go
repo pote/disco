@@ -2,6 +2,7 @@ package disco
 
 import(
   "testing"
+  "time"
 
   "github.com/garyburd/redigo/redis"
 )
@@ -44,7 +45,7 @@ func TestConnectionFetch(t *testing.T) {
   connection, err := NewConnection(1)
   connection.AddJob("disco-test-queue", "this-is-the-payload", "10s")
 
-  job, err := connection.Fetch(1, "10s", "disco-test-queue")
+  job, err := connection.Fetch(1, time.Second * 10, "disco-test-queue")
 
   if err != nil {
     t.Fatal(err)

@@ -56,11 +56,7 @@ func (c *Connection) AddJob(queue string, payload string, pushTimeout string) (s
   return redis.String(c.Do("ADDJOB", arguments...))
 }
 
-func (c *Connection) Fetch(count int, fetchTimeout string, queues ...string) (Job, error){
-  timeout, err := time.ParseDuration(fetchTimeout); if err != nil {
-    return Job{}, err
-  }
-
+func (c *Connection) Fetch(count int, timeout time.Duration, queues ...string) (Job, error){
   arguments := redis.Args{}.
     Add("TIMEOUT").Add(int64(timeout.Seconds() * 1000)).
     Add("COUNT").Add(count).
