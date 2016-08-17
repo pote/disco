@@ -84,3 +84,13 @@ func (c *Connection) Fetch(count int, timeout time.Duration, queues ...string) (
 
   return Job{}, errors.New("timeout reached")
 }
+
+func (c *Connection) Ack(jobID string) error {
+  _, err := c.Do("ACKJOB", jobID)
+  return err
+}
+
+func (c *Connection) NAck(jobID string) error {
+  _, err := c.Do("NACK", jobID)
+  return err
+}

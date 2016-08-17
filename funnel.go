@@ -47,7 +47,14 @@ func (f *Funnel) Listen() {
         break
       }
 
+      if f.Closed {
+        connection.NAck(job.ID)
+        connection.Close()
+        return
+      }
+
       f.Incoming <- job
+      connection.Ack(job.ID)
     }
 
     connection.Close()
@@ -57,13 +64,22 @@ func (f *Funnel) Listen() {
 // This is a blocking call, you'll regularly want to execute it within a goroutine.
 func (f *Funnel) Dispatch() {
   for {
-    job := <- f.Outgoing
-    connection := f.Connections.Get()
-    connection.AddJob(job.Queue, string(job.Payload), "10s") // TODO: Push timeout should be configurable.
-    connection.Close()
+    select {
+    case job, ok := <- f.Outgoing:
+      if !ok {
+        return
+      }
+      connection := f.Connections.Get()
+      connection.AddJob(job.Queue, string(job.Payload), "10s") // TODO: Push timeout should be configurable.
+      connection.Close()
+    case <- time.Tick(time.Second):
+      if f.Closed {
+        return
+      }
+    }
   }
 }
 
 func (f *Funnel) Close() {
-
+  f.Closed = true
 }

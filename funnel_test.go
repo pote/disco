@@ -55,7 +55,3 @@ func TestFunnelOutgoingChannel(t *testing.T) {
     t.Error("Failed to fetch job in a timely manner")
   }
 }
-
-func TestFunnelClose(t *testing.T) {
-
-}
