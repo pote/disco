@@ -9,7 +9,7 @@ import(
 )
 
 type Pool struct {
-  disqueConnections redis.Pool
+  Connections redis.Pool
   Cycle int
   Nodes []string
 }
@@ -45,7 +45,7 @@ func NewPoolToNodes(maxIdle, maxActive int, idleTimeout string, cycle int, nodes
   _, err = c.Do("PING")
 
   p := Pool{
-    disqueConnections: disquePool,
+    Connections: disquePool,
     Cycle: cycle,
     Nodes: nodes,
   }
@@ -54,7 +54,7 @@ func NewPoolToNodes(maxIdle, maxActive int, idleTimeout string, cycle int, nodes
 }
 
 func (p *Pool) Get() Connection {
-  c := p.disqueConnections.Get()
+  c := p.Connections.Get()
 
   return Connection{c, p.Cycle, p.Nodes}
 }
