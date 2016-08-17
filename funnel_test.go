@@ -2,6 +2,7 @@ package disco
 
 import(
   "testing"
+  "time"
 )
 
 
@@ -13,18 +14,21 @@ func TestFunnelIncomingChannel(t *testing.T) {
   funnel := pool.NewFunnel("disco-test-queue")
   go funnel.Listen(1, "10s")
 
-  job, ok := <- funnel.Incoming
+  select {
+  case job, ok := <- funnel.Incoming:
+    if !ok {
+      t.Fatal("I... I guess something is not ok")
+    }
 
-  if !ok {
-    t.Fatal("I... I guess something is not ok")
-  }
+    if job.ID == "" {
+      t.Error("fetched jobs should always have ids")
+    }
 
-  if job.ID == "" {
-    t.Error("fetched jobs should always have ids")
-  }
-
-  if string(job.Payload) != "this-is-the-payload" {
-    t.Errorf("Expected payload does not match: '%v'", string(job.Payload))
+    if string(job.Payload) != "this-is-the-payload" {
+      t.Errorf("Expected payload does not match: '%v'", string(job.Payload))
+    }
+  case <- time.NewTicker(time.Second).C:
+    t.Error("Failed to fetch job in a timely manner")
   }
 }
 
@@ -36,17 +40,20 @@ func TestFunnelOutgoingChannel(t *testing.T) {
 
   go funnel.Listen(1, "10s")
 
-  job, ok := <- funnel.Incoming
+  select {
+  case job, ok := <- funnel.Incoming:
+    if !ok {
+      t.Fatal("I... I guess something is not ok")
+    }
 
-  if !ok {
-    t.Fatal("I... I guess something is not ok")
-  }
+    if job.ID == "" {
+      t.Error("fetched jobs should always have ids")
+    }
 
-  if job.ID == "" {
-    t.Error("fetched jobs should always have ids")
-  }
-
-  if string(job.Payload) != "this-is-the-payload" {
-    t.Errorf("Expected payload does not match: '%v'", string(job.Payload))
+    if string(job.Payload) != "this-is-the-payload" {
+      t.Errorf("Expected payload does not match: '%v'", string(job.Payload))
+    }
+  case <- time.NewTicker(time.Second).C:
+    t.Error("Failed to fetch job in a timely manner")
   }
 }
