@@ -7,7 +7,11 @@ $(DEPENDENCIES): Godeps
 	$(GPM) get
 	touch $@
 
-test: $(DEPENDENCIES)
-	go test
+build: $(DEPENDENCIES)
+	@go build .
+	@go tool vet -all .
+
+test: build
+	@go test
 
 .PHONY: test
