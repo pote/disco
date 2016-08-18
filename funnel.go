@@ -39,6 +39,10 @@ func NewFunnel(pool *Pool, fetchCount int, fetchTimeout time.Duration, queues ..
 // This is a blocking call, you'll regularly want to execute it within a goroutine.
 func (f *Funnel) Listen() {
   for {
+    if f.Closed {
+        close(f.Incoming)
+        return
+    }
     connection := f.Connections.Get()
 
     for {
