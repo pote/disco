@@ -1,9 +1,6 @@
-// Disco is a flexible, channel-first approach to a Go [Disque](https://github.com/antirez/disque) client.
+// Disco is a flexible, idiomatic approach to a Go Disque client.
 //
-//
-// The Project
-//
-// Disco attempts to provide two ways of using Disque: a [low level API](#low-level-api) that allows more flexibility and control for users that need it and [high level API](#high-level-api) for the most common usage patterns.
+// It attempts to provide two ways of using Disque: a low level API that allows more flexibility and control for users that need it and high level API for the most common usage patterns.
 //
 //
 // High Level Api
@@ -15,6 +12,7 @@
 // Funnels are an abstraction on top of a `disco.Pool`: they provide Go channels that you can use to enqueue or receive jobs from Disque.
 //
 //
+//   // See GoDoc for further details in connection Pool creation.
 //   pool, _ := NewPool(2, 5, 1, time.Second * 200)
 //   funnel := pool.NewFunnel("disco-test-queue", "other-queue")
 //   defer funnel.Close()
