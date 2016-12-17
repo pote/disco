@@ -1,8 +1,6 @@
-# disco
+# Disco - [![GoDoc](https://godoc.org/github.com/pote/disco?status.svg)](https://godoc.org/github.com/pote/disco)
 
 A flexible, idiomatic approach to a Go [Disque](https://github.com/antirez/disque) client.
-
-[![GoDoc](https://godoc.org/github.com/pote/disco?status.svg)](https://godoc.org/github.com/pote/disco)
 
 ### The Project
 
